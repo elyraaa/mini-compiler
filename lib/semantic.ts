@@ -1,6 +1,5 @@
 // Semantic Analyser
 
-
 import {
   ProgramNode,
   StatementNode,

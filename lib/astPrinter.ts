@@ -1,8 +1,5 @@
-// ============================================================
-// AST PRETTY PRINTER
-// Converts the AST into a human-readable tree string
-// for display in the compiler visualization UI.
-// ============================================================
+// AST Pretty Printer
+// Exists to convert AST to readable strings
 
 import { ASTNode, ProgramNode, StatementNode, ExpressionNode } from "./parser";
 

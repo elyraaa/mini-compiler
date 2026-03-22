@@ -1,27 +1,8 @@
-// ============================================================
-// PARSER (Syntax Analyzer)
-// Converts the flat token stream into a hierarchical
-// Abstract Syntax Tree (AST) that reflects program structure.
-//
-// Grammar (Context-Free Grammar in EBNF):
-//   program     → statement* EOF
-//   statement   → varDecl | inputStmt | outputStmt | assignStmt
-//   varDecl     → 'var' IDENTIFIER ';'
-//   inputStmt   → 'input' IDENTIFIER ';'
-//   outputStmt  → 'output' expression ';'
-//   assignStmt  → IDENTIFIER '=' expression ';'
-//   expression  → term ( ('+' | '-') term )*
-//   term        → factor ( ('*' | '/') factor )*
-//   factor      → NUMBER | IDENTIFIER | '(' expression ')'
-//
-// Uses a Recursive Descent Parser — each grammar rule
-// corresponds to a parsing function.
-// Reference: Aho et al., Chapter 4 (Syntax Analysis)
-// ============================================================
+// Parser (Syntax Analyzer)
 
 import { Token, TokenType } from "./lexer";
 
-// ── AST Node Types ────────────────────────────────────────────
+// AST Node Types
 export type ASTNode =
   | ProgramNode
   | VarDeclNode
@@ -97,7 +78,7 @@ export interface IdentifierNode {
   column: number;
 }
 
-// ── Parser Errors ─────────────────────────────────────────────
+// Parser Errors
 export interface ParseError {
   message: string;
   line: number;
@@ -109,12 +90,12 @@ export interface ParseResult {
   errors: ParseError[];
 }
 
-// ── Recursive Descent Parser ──────────────────────────────────
+// Recursive Descent Parser
 export function parse(tokens: Token[]): ParseResult {
   let pos = 0;
   const errors: ParseError[] = [];
 
-  // ── Helper utilities ──────────────────────────────────────
+  // Helper Util
   const current = (): Token => tokens[pos] ?? tokens[tokens.length - 1];
 
   const peek = (): Token => tokens[pos];
@@ -141,12 +122,11 @@ export function parse(tokens: Token[]): ParseResult {
       line: tok.line,
       column: tok.column,
     });
-    // Error recovery: return a dummy token and advance
+    // Error recovery
     return tok;
   };
 
   const synchronize = (): void => {
-    // Skip to the next statement boundary (semicolon or keyword)
     while (!isAtEnd()) {
       if (current().type === "SEMICOLON") {
         pos++;
@@ -162,9 +142,7 @@ export function parse(tokens: Token[]): ParseResult {
     }
   };
 
-  // ── Grammar Rules ──────────────────────────────────────────
-
-  // program → statement* EOF
+  // Grammar Rules
   const parseProgram = (): ProgramNode => {
     const body: StatementNode[] = [];
     while (!isAtEnd()) {
@@ -177,8 +155,7 @@ export function parse(tokens: Token[]): ParseResult {
     }
     return { kind: "Program", body };
   };
-
-  // statement → varDecl | inputStmt | outputStmt | assignStmt
+  
   const parseStatement = (): StatementNode | null => {
     const tok = current();
 
@@ -192,7 +169,7 @@ export function parse(tokens: Token[]): ParseResult {
       return parseAssignStmt();
     }
 
-    // Unknown statement
+    // if unknown statement
     errors.push({
       message: `Unexpected token '${tok.value}' at start of statement`,
       line: tok.line,
@@ -201,8 +178,7 @@ export function parse(tokens: Token[]): ParseResult {
     synchronize();
     return null;
   };
-
-  // varDecl → 'var' IDENTIFIER ';'
+  
   const parseVarDecl = (): VarDeclNode => {
     const kw = consume("KEYWORD", "var");
     const name = consume("IDENTIFIER");
@@ -215,7 +191,7 @@ export function parse(tokens: Token[]): ParseResult {
     };
   };
 
-  // inputStmt → 'input' IDENTIFIER ';'
+  
   const parseInputStmt = (): InputStmtNode => {
     const kw = consume("KEYWORD", "input");
     const varTok = consume("IDENTIFIER");
@@ -227,8 +203,7 @@ export function parse(tokens: Token[]): ParseResult {
       column: kw.column,
     };
   };
-
-  // outputStmt → 'output' expression ';'
+  
   const parseOutputStmt = (): OutputStmtNode => {
     const kw = consume("KEYWORD", "output");
     const expr = parseExpression();
@@ -240,8 +215,7 @@ export function parse(tokens: Token[]): ParseResult {
       column: kw.column,
     };
   };
-
-  // assignStmt → IDENTIFIER '=' expression ';'
+  
   const parseAssignStmt = (): AssignStmtNode => {
     const varTok = consume("IDENTIFIER");
     consume("ASSIGN");
@@ -255,8 +229,7 @@ export function parse(tokens: Token[]): ParseResult {
       column: varTok.column,
     };
   };
-
-  // expression → term ( ('+' | '-') term )*
+  
   const parseExpression = (): ExpressionNode => {
     let left = parseTerm();
 
@@ -278,8 +251,7 @@ export function parse(tokens: Token[]): ParseResult {
 
     return left;
   };
-
-  // term → factor ( ('*' | '/') factor )*
+  
   const parseTerm = (): ExpressionNode => {
     let left = parseFactor();
 
@@ -301,8 +273,7 @@ export function parse(tokens: Token[]): ParseResult {
 
     return left;
   };
-
-  // factor → NUMBER | IDENTIFIER | '(' expression ')'
+  
   const parseFactor = (): ExpressionNode => {
     const tok = current();
 
@@ -327,7 +298,7 @@ export function parse(tokens: Token[]): ParseResult {
     }
 
     if (tok.type === "LPAREN") {
-      pos++; // consume (
+      pos++;
       const expr = parseExpression();
       consume("RPAREN");
       return expr;
@@ -339,8 +310,7 @@ export function parse(tokens: Token[]): ParseResult {
       line: tok.line,
       column: tok.column,
     });
-
-    // Return dummy node
+    
     return {
       kind: "NumberLiteral",
       value: 0,

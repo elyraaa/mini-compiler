@@ -1,11 +1,4 @@
-// ============================================================
-// LEXER (Lexical Analyzer)
-// Divides input source text into a list of tokens.
-// Based on formal language theory: each token represents
-// a terminal symbol in the grammar.
-// Reference: Aho, Lam, Sethi, Ullman - "Compilers: Principles,
-// Techniques, and Tools" (Dragon Book), Chapter 3.
-// ============================================================
+// Lexical Analyzer
 
 export type TokenType =
   | "KEYWORD"
@@ -40,23 +33,6 @@ export interface LexerResult {
 const KEYWORDS = new Set(["var", "input", "output"]);
 const OPERATORS = new Set(["+", "-", "*", "/"]);
 
-/**
- * Lexical Analyzer
- *
- * Implements a deterministic finite automaton (DFA) approach
- * to tokenize the source program character by character.
- *
- * Token patterns (regular expressions):
- *   IDENTIFIER  → [a-zA-Z_][a-zA-Z_0-9]*
- *   NUMBER      → [0-9]+
- *   OPERATOR    → [+\-*\/]
- *   ASSIGN      → =
- *   LPAREN      → (
- *   RPAREN      → )
- *   SEMICOLON   → ;
- *   COMMENT     → /\* ... *\/  (skipped)
- *   WHITESPACE  → [ \t\n\r]+  (skipped)
- */
 export function tokenize(source: string): LexerResult {
   const tokens: Token[] = [];
   const errors: LexerError[] = [];
@@ -90,21 +66,21 @@ export function tokenize(source: string): LexerResult {
     const startLine = line;
     const startCol = column;
 
-    // Skip whitespace (Rule 2: whitespace is not significant)
+    // Skip whitespace
     if (/\s/.test(ch)) {
       advance();
       continue;
     }
 
-    // Handle comments (Rule 3: /* ... */)
+    // Handle comments
     if (ch === "/" && peek(1) === "*") {
-      advance(); // consume /
-      advance(); // consume *
+      advance();
+      advance();
       let closed = false;
       while (pos < source.length) {
         if (source[pos] === "*" && peek(1) === "/") {
-          advance(); // consume *
-          advance(); // consume /
+          advance();
+          advance();
           closed = true;
           break;
         }
@@ -120,14 +96,14 @@ export function tokenize(source: string): LexerResult {
       continue;
     }
 
-    // Semicolon (Rule 1: all statements end with ;)
+    // Semicolon
     if (ch === ";") {
       advance();
       tokens.push(makeToken("SEMICOLON", ";", startLine, startCol));
       continue;
     }
 
-    // Parentheses (Rule 6: for grouping)
+    // Parentheses
     if (ch === "(") {
       advance();
       tokens.push(makeToken("LPAREN", "(", startLine, startCol));
@@ -139,21 +115,21 @@ export function tokenize(source: string): LexerResult {
       continue;
     }
 
-    // Assignment operator (Rule 6)
+    // Assignment operator
     if (ch === "=" && peek(1) !== "=") {
       advance();
       tokens.push(makeToken("ASSIGN", "=", startLine, startCol));
       continue;
     }
 
-    // Arithmetic operators (Rule 6)
+    // Arithmetic operators
     if (OPERATORS.has(ch)) {
       advance();
       tokens.push(makeToken("OPERATOR", ch, startLine, startCol));
       continue;
     }
 
-    // Numbers (Rule 5: integers only)
+    // Numbers
     if (/[0-9]/.test(ch)) {
       let num = "";
       while (pos < source.length && /[0-9]/.test(source[pos])) {
@@ -163,9 +139,8 @@ export function tokenize(source: string): LexerResult {
       continue;
     }
 
-    // Identifiers and Keywords (Rule 4 & 7)
-    // Rule 7: may only consist of letters, underscores, numbers
-    //         and must NOT start with a number (handled above)
+    // Identifiers
+    // Keywords
     if (/[a-zA-Z_]/.test(ch)) {
       let ident = "";
       while (pos < source.length && /[a-zA-Z_0-9]/.test(source[pos])) {
@@ -176,7 +151,7 @@ export function tokenize(source: string): LexerResult {
       continue;
     }
 
-    // Unrecognized character
+    // Unrecognized characters
     errors.push({
       message: `Unexpected character '${ch}'`,
       line: startLine,

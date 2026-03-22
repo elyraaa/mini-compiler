@@ -1,12 +1,3 @@
-// ============================================================
-// COMPILER PIPELINE ORCHESTRATOR
-// Coordinates all compiler phases:
-//   1. Lexical Analysis  (Lexer)
-//   2. Syntax Analysis   (Parser)
-//   3. Semantic Analysis (Semantic Analyzer)
-//   4. Execution         (Interpreter)
-// ============================================================
-
 import { tokenize, LexerResult } from "./lexer";
 import { parse, ParseResult, ProgramNode } from "./parser";
 import { analyze, SemanticResult } from "./semantic";
@@ -27,7 +18,7 @@ export function compile(
   source: string,
   inputValues: number[] = []
 ): CompilerResult {
-  // ── Phase 1: Lexical Analysis ──────────────────────────────
+  // Lexical Analysis
   const lexerResult = tokenize(source);
 
   if (lexerResult.errors.length > 0) {
@@ -42,7 +33,7 @@ export function compile(
     };
   }
 
-  // ── Phase 2: Syntax Analysis ───────────────────────────────
+  // Syntax Analysis
   const parseResult = parse(lexerResult.tokens);
 
   if (parseResult.errors.length > 0 || !parseResult.ast) {
@@ -60,7 +51,7 @@ export function compile(
   const ast = parseResult.ast as ProgramNode;
   const treeNode = astToTree(ast);
 
-  // ── Phase 3: Semantic Analysis ─────────────────────────────
+  // Semantic Analysis
   const semanticResult = analyze(ast);
 
   const semanticErrors = semanticResult.errors.filter(
@@ -78,7 +69,7 @@ export function compile(
     };
   }
 
-  // ── Phase 4: Interpretation / Execution ────────────────────
+  // Interpretation
   const interpreterResult = interpret(ast, semanticResult.symbolTable, inputValues);
 
   const hasRuntimeErrors = interpreterResult.errors.length > 0;

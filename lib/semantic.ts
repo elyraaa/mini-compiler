@@ -1,21 +1,5 @@
-// ============================================================
-// SEMANTIC ANALYZER
-// Performs context-sensitive analysis on the AST that cannot
-// be expressed by the context-free grammar alone.
-//
-// Checks performed:
-//   1. Undeclared variable usage
-//   2. Duplicate variable declarations
-//   3. Assigning to undeclared variables
-//   4. Input on undeclared variables
-//
-// Uses a Symbol Table (scope table) to track declared variables.
-// Since all variables are integers (Rule 5), type inference is
-// trivial — every declared variable has type 'int'.
-//
-// Reference: Aho et al., Chapter 6 (Intermediate-Code Generation)
-//            Cooper & Torczon, "Engineering a Compiler", Ch. 5
-// ============================================================
+// Semantic Analyser
+
 
 import {
   ProgramNode,

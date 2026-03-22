@@ -1,20 +1,3 @@
-// ============================================================
-// INTERPRETER
-// Tree-walk interpreter that directly executes the AST.
-// This serves as the "backend" of our compiler pipeline,
-// analogous to code generation + execution.
-//
-// The interpreter maintains a runtime environment (store)
-// mapping variable names to their integer values.
-//
-// For a production compiler, this stage would instead generate
-// intermediate code (e.g., three-address code or LLVM IR)
-// and then emit target machine code.
-//
-// Reference: Aho et al., Chapters 6-8
-//            Nystrom, "Crafting Interpreters"
-// ============================================================
-
 import { ProgramNode, StatementNode, ExpressionNode } from "./parser";
 import { SymbolTable } from "./semantic";
 
@@ -30,12 +13,7 @@ export interface InterpreterResult {
   store: Map<string, number>; // Final state of all variables
 }
 
-/**
- * Executes the program AST.
- * @param ast - The validated program AST
- * @param symbolTable - Symbol table from semantic analysis
- * @param inputValues - Values to supply to 'input' statements (in order)
- */
+// Execute program AST
 export function interpret(
   ast: ProgramNode,
   symbolTable: SymbolTable,
@@ -46,12 +24,12 @@ export function interpret(
   const errors: RuntimeError[] = [];
   let inputIndex = 0;
 
-  // Initialize all declared variables to 0 (default for integers)
+  // Initialize all declared variables to 0
   for (const [name] of symbolTable) {
     store.set(name, 0);
   }
 
-  // ── Execute Statements ────────────────────────────────────
+  // Execute Statements
   for (const stmt of ast.body) {
     try {
       executeStatement(stmt);
@@ -99,7 +77,7 @@ export function interpret(
     }
   }
 
-  // ── Evaluate Expressions ──────────────────────────────────
+  // Expression Evaluator
   function evaluateExpression(expr: ExpressionNode): number {
     switch (expr.kind) {
       case "NumberLiteral":
@@ -132,7 +110,7 @@ export function interpret(
                 column: expr.column,
               });
             }
-            // Integer division (truncate toward zero)
+            // For int division
             return Math.trunc(left / right);
           default:
             throw new RuntimeException({

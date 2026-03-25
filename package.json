@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "description": "A visual mini-compiler with lexer, parser, and semantic analysis",
   "private": true,
+  "main": "electron.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "electron": "electron .",
+    "electron:build": "next build && electron-builder"
   },
   "dependencies": {
     "next": "^16.2.1",
@@ -16,6 +19,22 @@
   "devDependencies": {
     "@types/node": "25.5.0",
     "@types/react": "19.2.14",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0",
+    "concurrently": "^9.0.0",
+    "wait-on": "^8.0.0"
+  },
+  "build": {
+    "appId": "com.minicompiler.app",
+    "productName": "Mini Compiler",
+    "files": [
+      "**/*",
+      "!node_modules/.cache"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/favicon.ico"
+    }
   }
 }

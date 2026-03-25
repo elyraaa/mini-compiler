@@ -39,16 +39,15 @@ function createWindow() {
 
 app.on('ready', () => {
   const appPath = app.getAppPath();
-  // node_modules is unpacked outside the .asar archive
   const unpackedPath = appPath.replace('app.asar', 'app.asar.unpacked');
-  const nextBin = path.join(unpackedPath, 'node_modules', '.bin', 'next');
+  const nextBin = path.join(unpackedPath, 'node_modules', '.bin', 'next.cmd');
 
   let logs = '';
   logs += 'appPath: ' + appPath + '\n';
   logs += 'unpackedPath: ' + unpackedPath + '\n';
   logs += 'nextBin: ' + nextBin + '\n\n';
 
-  nextProcess = exec(`"${nextBin}" start`, {
+  nextProcess = exec(`cmd /c "${nextBin}" start`, {
     cwd: unpackedPath,
     env: { ...process.env, NODE_ENV: 'production' }
   });

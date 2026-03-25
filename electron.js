@@ -1,9 +1,25 @@
 const { app, BrowserWindow } = require('electron');
 const { exec } = require('child_process');
-const path = require('path');
+const http = require('http');
 
 let mainWindow;
 let nextProcess;
+
+function waitForServer(url, retries = 20, delay = 1000) {
+  return new Promise((resolve, reject) => {
+    const attempt = () => {
+      http.get(url, (res) => {
+        if (res.statusCode === 200) resolve();
+        else if (retries > 0) { retries--; setTimeout(attempt, delay); }
+        else reject(new Error('Server did not start'));
+      }).on('error', () => {
+        if (retries > 0) { retries--; setTimeout(attempt, delay); }
+        else reject(new Error('Server did not start'));
+      });
+    };
+    attempt();
+  });
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -16,9 +32,14 @@ function createWindow() {
 }
 
 app.on('ready', () => {
-  // Start Next.js server
   nextProcess = exec('node node_modules/.bin/next start', { cwd: __dirname });
-  setTimeout(createWindow, 3000); // Wait for Next.js to start
+
+  waitForServer('http://localhost:3000')
+    .then(createWindow)
+    .catch((err) => {
+      console.error('Failed to start Next.js server:', err);
+      app.quit();
+    });
 });
 
 app.on('window-all-closed', () => {

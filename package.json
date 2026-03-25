@@ -28,6 +28,9 @@
   "build": {
     "appId": "com.minicompiler.app",
     "productName": "Mini Compiler",
+    "extraMetadata": {
+      "main": "electron.js"
+    },
     "files": [
       "**/*",
       "!node_modules/.cache"

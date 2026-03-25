@@ -8,93 +8,93 @@ import { Interpreter, getInputVariableNames } from '../lib/interpreter.js';
 //  SAMPLE PROGRAMS
 // ─────────────────────────────────────────────
 const SAMPLES = {
-  'Hello Compiler': `/* My first program: compute sum of two numbers */
-var a;
-var b;
-var result;
+  'Hello Golfer': `/* My first program: compute sum of two numbers */
+tee a;
+tee b;
+tee result;
 
-input a;
-input b;
+drive a;
+drive b;
 
 result = a + b;
-output result;`,
+putt result;`,
 
   'Quadratic Terms': `/* Compute ax^2 + bx + c */
-var a;
-var b;
-var c;
-var x;
-var term1;
-var term2;
-var answer;
+tee a;
+tee b;
+tee c;
+tee x;
+tee term1;
+tee term2;
+tee answer;
 
-input a;
-input b;
-input c;
-input x;
+drive a;
+drive b;
+drive c;
+drive x;
 
 term1 = a * x * x;
 term2 = b * x;
 answer = term1 + term2 + c;
 
-output answer;`,
+putt answer;`,
 
   'Integer Division': `/* Show integer division and remainder */
-var dividend;
-var divisor;
-var quotient;
-var remainder;
+tee dividend;
+tee divisor;
+tee quotient;
+tee remainder;
 
-input dividend;
-input divisor;
+drive dividend;
+drive divisor;
 
 quotient  = dividend / divisor;
 remainder = dividend - (quotient * divisor);
 
-output quotient;
-output remainder;`,
+putt quotient;
+putt remainder;`,
 
   'Celsius to Fahrenheit': `/* Temperature converter: C to F
    Formula: F = (C * 9 / 5) + 32  */
-var celsius;
-var fahrenheit;
+tee celsius;
+tee fahrenheit;
 
-input celsius;
+drive celsius;
 
 fahrenheit = (celsius * 9 / 5) + 32;
 
-output fahrenheit;`,
+putt fahrenheit;`,
 
   'Error Example': `/* This program has intentional errors for demonstration */
-var x;
-var y;
+tee x;
+tee y;
 
-input x;
-output z;       /* z is not declared! */
-var x;          /* x declared twice! */
-y = x + w;      /* w is not declared! */`,
+drive x;
+putt z;       /* z is not declared! */
+tee x;        /* x declared twice! */
+y = x + w;   /* w is not declared! */`,
 };
 
 // ─────────────────────────────────────────────
 //  SYNTAX HIGHLIGHT HELPER
 // ─────────────────────────────────────────────
 function syntaxHighlight(code) {
-  const keywords   = /\b(var|input|output)\b/g;
-  const numbers    = /\b(\d+)\b/g;
-  const operators  = /([+\-*/=;()])/g;
-  const comments   = /(\/\*[\s\S]*?\*\/)/g;
+  const keywords    = /\b(tee|drive|putt)\b/g;
+  const numbers     = /\b(\d+)\b/g;
+  const operators   = /([+\-*/=;()])/g;
+  const comments    = /(\/\*[\s\S]*?\*\/)/g;
   const identifiers = /\b([a-zA-Z_][a-zA-Z0-9_]*)\b/g;
 
   return code
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(comments,   m => `<span class="hl-comment">${m}</span>`)
-    .replace(keywords,   m => `<span class="hl-keyword">${m}</span>`)
-    .replace(numbers,    m => `<span class="hl-number">${m}</span>`)
-    .replace(operators,  m => `<span class="hl-operator">${m}</span>`)
+    .replace(comments,    m => `<span class="hl-comment">${m}</span>`)
+    .replace(keywords,    m => `<span class="hl-keyword">${m}</span>`)
+    .replace(numbers,     m => `<span class="hl-number">${m}</span>`)
+    .replace(operators,   m => `<span class="hl-operator">${m}</span>`)
     .replace(identifiers, m =>
-      /\b(var|input|output)\b/.test(m) ? m : `<span class="hl-ident">${m}</span>`
+      /\b(tee|drive|putt)\b/.test(m) ? m : `<span class="hl-ident">${m}</span>`
     );
 }
 
@@ -181,7 +181,7 @@ function AstNode({ node, depth = 0 }) {
 //  TOKEN TYPE COLOR MAP
 // ─────────────────────────────────────────────
 const TOKEN_COLORS = {
-  VAR: 'var(--pink)', INPUT: 'var(--green)', OUTPUT: 'var(--orange)',
+  TEE:   'var(--pink)', DRIVE: 'var(--green)', PUTT: 'var(--orange)',
   NUMBER: 'var(--yellow)', IDENTIFIER: 'var(--accent)',
   PLUS: 'var(--purple)', MINUS: 'var(--purple)', MULTIPLY: 'var(--purple)', DIVIDE: 'var(--purple)',
   ASSIGN: 'var(--text-primary)', LPAREN: 'var(--text-muted)', RPAREN: 'var(--text-muted)',
@@ -192,7 +192,7 @@ const TOKEN_COLORS = {
 //  MAIN PAGE COMPONENT
 // ─────────────────────────────────────────────
 export default function CompilerPage() {
-  const [code,        setCode]        = useState(SAMPLES['Hello Compiler']);
+  const [code,        setCode]        = useState(SAMPLES['Hello Golfer']);
   const [inputValues, setInputValues] = useState('10\n20');
   const [activeTab,   setActiveTab]   = useState('tokens');
   const [result,      setResult]      = useState(null);
@@ -418,14 +418,14 @@ export default function CompilerPage() {
               background: 'linear-gradient(90deg, var(--accent), var(--green))',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
             }}>
-              MINI COMPILER
+              GOLF SCRIPT
             </span>
             <span style={{
               color: 'var(--text-dim)', fontSize: 11,
               fontFamily: 'JetBrains Mono, monospace',
               letterSpacing: 1, paddingLeft: 4
             }}>
-              v1.0 · Lexer → Parser → Semantic → Exec
+              v1.0 · tee → drive → putt
             </span>
           </div>
 
@@ -520,7 +520,7 @@ export default function CompilerPage() {
                   }
                 }}
                 spellCheck={false}
-                placeholder="// Write your program here..."
+                placeholder="// Write your GolfScript program here..."
               />
             </div>
 
@@ -704,7 +704,6 @@ export default function CompilerPage() {
                         Semantic Analysis · Type & Scope Checking
                       </div>
 
-                      {/* Errors */}
                       {result.semanticErrors.length > 0 && (
                         <div style={{ padding: '8px 12px' }}>
                           <div style={{ fontSize: 10, color: 'var(--error)', fontFamily: 'Orbitron, monospace', letterSpacing: 1, marginBottom: 6 }}>ERRORS</div>
@@ -716,7 +715,6 @@ export default function CompilerPage() {
                         </div>
                       )}
 
-                      {/* Warnings */}
                       {result.semanticWarnings.length > 0 && (
                         <div style={{ padding: '8px 12px' }}>
                           <div style={{ fontSize: 10, color: 'var(--warning)', fontFamily: 'Orbitron, monospace', letterSpacing: 1, marginBottom: 6 }}>WARNINGS</div>
@@ -734,7 +732,6 @@ export default function CompilerPage() {
                         </div>
                       )}
 
-                      {/* Symbol Table */}
                       {result.symbolTable.size > 0 && (
                         <div>
                           <div style={{ padding: '8px 12px 4px', fontSize: 10, color: 'var(--accent)', fontFamily: 'Orbitron, monospace', letterSpacing: 1 }}>
@@ -783,7 +780,6 @@ export default function CompilerPage() {
 
                       {!hasErrors && result.exec && (
                         <>
-                          {/* Output values */}
                           {result.exec.output.length > 0 ? (
                             <div style={{ padding: '12px 12px 0' }}>
                               <div style={{ fontSize: 10, color: 'var(--green)', fontFamily: 'Orbitron, monospace', letterSpacing: 1, marginBottom: 8 }}>CONSOLE OUTPUT</div>
@@ -796,11 +792,10 @@ export default function CompilerPage() {
                             </div>
                           ) : (
                             <div style={{ padding: '12px 12px 0' }}>
-                              <div className="success-item">Program ran successfully — no output statements</div>
+                              <div className="success-item">Program ran successfully — no putt statements</div>
                             </div>
                           )}
 
-                          {/* Final environment */}
                           {Object.keys(result.exec.env).length > 0 && (
                             <div style={{ padding: '12px 12px 0' }}>
                               <div style={{ fontSize: 10, color: 'var(--purple)', fontFamily: 'Orbitron, monospace', letterSpacing: 1, marginBottom: 8 }}>FINAL VARIABLE STATE</div>
@@ -818,7 +813,6 @@ export default function CompilerPage() {
                             </div>
                           )}
 
-                          {/* Execution trace */}
                           {result.exec.trace.length > 0 && (
                             <div style={{ padding: '12px 12px 0' }}>
                               <div style={{ fontSize: 10, color: 'var(--text-dim)', fontFamily: 'Orbitron, monospace', letterSpacing: 1, marginBottom: 8 }}>EXECUTION TRACE</div>
@@ -887,7 +881,7 @@ export default function CompilerPage() {
           ))}
           <div style={{ flex: 1 }} />
           <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--text-dim)' }}>
-            Mini Compiler · Lexer → Parser → Semantic Analyzer → Tree-Walking Interpreter
+            GolfScript · Lexer → Parser → Semantic Analyzer → Tree-Walking Interpreter
           </span>
         </footer>
       </div>

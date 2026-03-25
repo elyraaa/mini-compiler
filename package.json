@@ -26,18 +26,22 @@
     "wait-on": "^8.0.0"
   },
   "build": {
-    "appId": "com.minicompiler.app",
-    "productName": "Mini Compiler",
-    "extraMetadata": {
-      "main": "electron.js"
-    },
-    "files": [
-      "**/*",
-      "!node_modules/.cache"
-    ],
-    "win": {
-      "target": "nsis",
-      "icon": "public/favicon.ico"
-    }
+  "appId": "com.minicompiler.app",
+  "productName": "Mini Compiler",
+  "extraMetadata": {
+    "main": "electron.js"
+  },
+  "files": [
+    "**/*",
+    "!node_modules/.cache",
+    "!.next/cache"
+  ],
+  "asarUnpack": [
+    "node_modules/**/*",
+    ".next/**/*"
+  ],
+  "win": {
+    "target": "nsis"
   }
+}
 }

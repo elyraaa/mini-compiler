@@ -17,7 +17,7 @@ function waitForServer(url, retries = 30, delay = 1000) {
       http.get(url, (res) => {
         if (res.statusCode === 200) resolve();
         else if (retries > 0) { retries--; setTimeout(attempt, delay); }
-        else reject(new Error('Server did not respond with 200'));
+        else reject(new Error('Server never became reachable'));
       }).on('error', () => {
         if (retries > 0) { retries--; setTimeout(attempt, delay); }
         else reject(new Error('Server never became reachable'));
@@ -39,14 +39,17 @@ function createWindow() {
 
 app.on('ready', () => {
   const appPath = app.getAppPath();
-  const nextBin = path.join(appPath, 'node_modules', '.bin', 'next');
+  // node_modules is unpacked outside the .asar archive
+  const unpackedPath = appPath.replace('app.asar', 'app.asar.unpacked');
+  const nextBin = path.join(unpackedPath, 'node_modules', '.bin', 'next');
 
   let logs = '';
   logs += 'appPath: ' + appPath + '\n';
+  logs += 'unpackedPath: ' + unpackedPath + '\n';
   logs += 'nextBin: ' + nextBin + '\n\n';
 
   nextProcess = exec(`"${nextBin}" start`, {
-    cwd: appPath,
+    cwd: unpackedPath,
     env: { ...process.env, NODE_ENV: 'production' }
   });
 
